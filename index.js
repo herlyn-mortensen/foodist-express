@@ -3,7 +3,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 
-app.use(cors({origin: "*"}))
+app.use(cors({origin: ["*", "https://8080-herlynmorte-project3the-ns4y0pxpk6v.ws-us73.gitpod.io"]}))
 app.use(express.json())
 
 
