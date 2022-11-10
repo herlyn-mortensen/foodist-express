@@ -50,7 +50,6 @@ app.post('/review', async (req, res) => {
  */
 app.post('/user/login', async (req, res) => {{
     const { email, password } = req.body
-    console.log(email, password)
     const model = "users"
     const fetch = await (await mongodb.collection(database, model)).findOne({
         email: email,
@@ -69,15 +68,46 @@ app.post('/user/login', async (req, res) => {{
         expiresIn: '1d'
     })
     return res.status(200).send({
-        fetch,
+        ...fetch,
         accessToken: accessToken
     })
 
 }})
 
 app.post('/user/register', async (req, res) => {
+    const { email, password } = req.body
+    const model = "users"
+    const fetch = await (await mongodb.collection(database, model)).findOne({
+        email: email,
+    })
+    // if there is no user found
+    if (fetch) {
+        return res.status(404).send({
+            name: 'USER_ALREADY_EXISTS'
+        })
+    }
 
+    const create = await (await mongodb.collection(database, model)).insertOne({
+        email: email,
+        password
+    })
+   
+    const accessToken = jwt.sign({
+        id: create._id
+    }, `${process.env.TOKEN_SECRET}`,{
+        expiresIn: '1d'
+    })
+    return res.status(200).send({
+        ...create,
+        accessToken: accessToken
+    })
 })
+
+//const delete = await (await mongodb.collection(database, model)).deleteOne({
+//    email: email,
+//    password
+//})
+
 app.listen(5000, () => {
     console.log('App Started ' + 5000)
 })
