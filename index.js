@@ -45,6 +45,77 @@ app.post('/review', async (req, res) => {
     const create = await (await mongodb.collection(database, model)).insertOne(data)
     return res.status(200).send('OK')
 })
+
+
+//Delete a review
+
+app.post('/delete/reviews/:reviewId', async function (req, res) {
+    console.log("deleted")
+    await db.collection('reviews').deleteOne({
+        '_id': ObjectID(req.params.reviewId)
+    })
+    res.redirect('/')
+})
+
+
+//Add comment
+
+app.post('/reviews/:reviewId/comments', async function(req,res){
+    const results = await db.collection('reviews').updateOne({
+        _id: ObjectID(req.params.reviewId)
+    },{
+        '$push':{
+            'comments':{
+                '_id': ObjectID(),
+                'review': req.body.review,
+                'nickname': req.body.nickname
+            }
+        }
+    })
+
+    res.json({
+        'message': 'Comment has been added successfully',
+        'results': results
+    })
+})
+
+
+//Edit commment
+
+app.put('/comments/:commentId/update', async function(req,res){
+    const results = await db.collection('reviews').updateOne({
+        'comments._id':ObjectID(req.params.commentId)
+    },{
+        '$set': {
+            'comments.$.review': req.body.review,
+            'comments.$.nickname': req.body.nickname
+        }
+    })
+    res.json({
+        'message': 'Comment updated',
+        'results': results
+    })
+})
+app.delete('/comments/:commentId', async function(req,res){
+    const results = await db.collection('reviews').updateOne({
+        'comments._id': ObjectID(req.params.commentId)
+    }, {
+        '$pull': {
+            'comments': {
+                '_id': ObjectID(req.params.commentId)
+            }
+        }
+    })
+    res.json({
+        'message': 'Comment deleted',
+        'result': results
+    })
+})
+
+
+
+
+
 /**
  * Endpoint for Logging in user
  */
