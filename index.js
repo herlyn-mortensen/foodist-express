@@ -23,9 +23,16 @@ app.get('/review', async (req, res) => {
     const model = "reviews"
     const fetch = await (await mongodb.collection(database, model)).find({})
     const snapshots = await fetch.toArray()
-    return await res.status(200).send(snapshots)
+    return res.status(200).send(snapshots)
 })
-
+//Get a certain review
+app.get('/review/:id', async (req, res) => {
+    console.log(req.params.id)
+    const database = "restaurant_reviews"
+    const model = "reviews"
+    const fetch = await (await mongodb.collection(database, model)).findOne({'_id': ObjectId(req.params.id)})
+    return res.status(200).send(fetch)
+})
 // Creating a review
 app.post('/review', async (req, res) => {
     console.log("Load")
