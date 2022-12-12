@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const { ObjectId } = require("mongodb")
 
 app.use(cors({origin: "*"}))
 app.use(express.json())
@@ -50,23 +51,28 @@ app.post('/review', async (req, res) => {
 //Delete a review
 
 app.post('/delete/reviews/:reviewId', async function (req, res) {
-    console.log("deleted")
-    await db.collection('reviews').deleteOne({
+    const database = "restaurant_reviews"
+    const collection = "reviews"
+    await db.collection(database, collection).deleteOne({
         '_id': ObjectID(req.params.reviewId)
     })
     res.redirect('/')
 })
 
-
+// Endpoints for Interacting with comments
 //Add comment
-
+/**
+ * Endpoint for appending a comment to the comment array on a document
+ */
 app.post('/reviews/:reviewId/comments', async function(req,res){
-    const results = await db.collection('reviews').updateOne({
-        _id: ObjectID(req.params.reviewId)
+    const database = "restaurant_reviews"
+    const collection = "reviews"
+    const results = await (await mongodb.collection(database, collection)).updateOne({
+        _id: ObjectId(req.params.reviewId)
     },{
         '$push':{
             'comments':{
-                '_id': ObjectID(),
+                '_id': ObjectId(),
                 'review': req.body.review,
                 'nickname': req.body.nickname
             }
@@ -79,16 +85,18 @@ app.post('/reviews/:reviewId/comments', async function(req,res){
     })
 })
 
-
-//Edit commment
-
-app.put('/comments/:commentId/update', async function(req,res){
-    const results = await db.collection('reviews').updateOne({
-        'comments._id':ObjectID(req.params.commentId)
-    },{
+/**
+ * Endpoint used for editing comment under 'reviews' collection
+ */
+app.put('/comments/:commentId', async function(req,res){
+    const database = "restaurant_reviews"
+    const collection = "reviews"
+    const results = await (await mongodb.collection(database, collection)).updateOne({
+        'comments._id': ObjectId(req.params.commentId)
+    },{ 
         '$set': {
             'comments.$.review': req.body.review,
-            'comments.$.nickname': req.body.nickname
+            'comments.$.nickname': req.body.nickname 
         }
     })
     res.json({
@@ -96,13 +104,18 @@ app.put('/comments/:commentId/update', async function(req,res){
         'results': results
     })
 })
+/**
+ * Endpoint for deleting a comment under the 'review' documents
+ */
 app.delete('/comments/:commentId', async function(req,res){
-    const results = await db.collection('reviews').updateOne({
-        'comments._id': ObjectID(req.params.commentId)
+    const database = "restaurant_reviews"
+    const collection = "reviews"
+    const results = await (await mongodb.collection(database, collection)).updateOne({
+        'comments._id': ObjectId(req.params.commentId)
     }, {
         '$pull': {
             'comments': {
-                '_id': ObjectID(req.params.commentId)
+                '_id': ObjectId(req.params.commentId)
             }
         }
     })
@@ -111,10 +124,6 @@ app.delete('/comments/:commentId', async function(req,res){
         'result': results
     })
 })
-
-
-
-
 
 /**
  * Endpoint for Logging in user
