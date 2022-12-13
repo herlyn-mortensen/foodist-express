@@ -17,7 +17,6 @@ app.get('/', (req, res) => {
 
 // Gettinng all reviews
 app.get('/review', async (req, res) => {
-    console.log('respond')
     // Create
     const database = "restaurant_reviews"
     const model = "reviews"
