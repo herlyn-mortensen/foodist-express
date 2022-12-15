@@ -52,7 +52,31 @@ app.post('/review', async (req, res) => {
     const create = await (await mongodb.collection(database, model)).insertOne(data)
     return res.status(200).send('OK')
 })
-
+// Updating a review
+app.put('/review/:id', async (req, res) => {
+    const { id } = req.params
+    const { title, restaurant, date, cuisine, review, foodordered, ratings, imageUrl} = req.body
+    const model = "reviews"
+    // Data
+    const data = {
+        title,
+        restaurant,
+        date,
+        cuisine,
+        review,
+        foodordered,
+        ratings,
+        imageUrl
+    }
+    // Create
+    await (await mongodb.collection(database, model)).updateOne({
+        _id: ObjectId(id)
+    }, 
+    {
+        $set: data
+    })
+    return res.status(200).send('OK')
+})
 
 //Delete a review
 
