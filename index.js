@@ -21,7 +21,7 @@ app.get('/review', async (req, res) => {
     const database = "restaurant_reviews"
     const model = "reviews"
     const fetch = await (await mongodb.collection(database, model)).find({})
-    const snapshots = await fetch.toArray()
+    const snapshots = (await fetch.toArray()).reverse()
     return res.status(200).send(snapshots)
 })
 //Get a certain review
@@ -79,6 +79,15 @@ app.put('/review/:id', async (req, res) => {
 })
 
 //Delete a review
+app.delete('/review/:reviewId', async function (req, res) {
+    const database = "restaurant_reviews"
+    const collection = "reviews"
+    const query = await (await mongodb.collection(database, collection)).deleteOne({
+        '_id': ObjectId(req.params.reviewId)
+    })
+    return res.status(200).send(query)
+})
+
 
 app.post('/delete/reviews/:reviewId', async function (req, res) {
     const database = "restaurant_reviews"
